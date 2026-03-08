@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
+import 'courses_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -411,7 +412,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: () {
-                              _showSnackBar("Explore Courses clicked");
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const CoursesPage(),
+                                ),
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
