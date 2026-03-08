@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'role_selection_page.dart';
 import 'courses_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -128,7 +129,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const LoginPage(),
+                        builder: (context) => const RoleSelectionPage(),
                       ),
                     );
                   },
@@ -235,9 +236,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       color: Colors.red,
                     ),
                   ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showSnackBar("Logging out...");
+                  onTap: () async {
+                    try {
+                      await FirebaseAuth.instance.signOut();
+                      if (mounted) {
+                        Navigator.pop(context);
+                        _showSnackBar("Logged out successfully");
+                      }
+                    } catch (e) {
+                      _showSnackBar("Error logging out: $e");
+                    }
                   },
                 ),
               ],

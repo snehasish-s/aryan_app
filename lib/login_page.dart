@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'signup_page.dart';
+import 'student_dashboard.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  final String? userRole;
+
+  const LoginPage({Key? key, this.userRole}) : super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -57,21 +62,50 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void _handleLogin() {
+  Future<void> _handleLogin() async {
     if (_formKey.currentState?.validate() ?? false) {
-      // Handle login logic here
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Login Successful!'),
-          backgroundColor: Colors.green.shade700,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+      try {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Login Successful!'),
+            backgroundColor: Colors.green.shade700,
           ),
-        ),
-      );
-      // Navigate back or to home after successful login
-      Navigator.pop(context);
+        );
+
+        // Navigate to appropriate dashboard
+        if (mounted) {
+          if (widget.userRole == 'student') {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const StudentDashboard()),
+              (route) => false,
+            );
+          } else {
+            // For other roles, you can add their dashboards here
+            Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil('/', (route) => false);
+          }
+        }
+      } on FirebaseAuthException catch (e) {
+        String message = "Login Failed";
+
+        if (e.code == 'user-not-found') {
+          message = "No user found with this email";
+        }
+
+        if (e.code == 'wrong-password') {
+          message = "Wrong password";
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -443,16 +477,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         ),
                         GestureDetector(
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text(
-                                  'Sign up feature coming soon!',
-                                ),
-                                backgroundColor: Colors.green.shade700,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SignupPage(),
                               ),
                             );
                           },
