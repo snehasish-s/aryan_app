@@ -4,20 +4,17 @@
 
 ![ARYAN Institute Logo](https://img.shields.io/badge/ARYAN-Institute-success?style=for-the-badge&logo=google-chrome&logoColor=white&labelColor=2E7D32&color=4CAF50)
 
-### *Excellence in Education Since 2000*
+### *Excellence in Education Since 2009*
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.0+-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.0+-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
+[![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=white)](https://firebase.google.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen?style=for-the-badge)](http://makeapullrequest.com)
 
-<img src="https://raw.githubusercontent.com/flutter/website/master/src/_assets/image/flutter-lockup.png" alt="Flutter" width="300"/>
-
 ---
 
-</div>
-
-## ✨ *Features at a Glance*
+## ✨ Features at a Glance
 
 <table align="center">
   <tr>
@@ -39,45 +36,73 @@
     <td align="center">🎯</td>
   </tr>
   <tr>
-    <td align="center"><b>Login System</b></td>
-    <td align="center"><b>Institute Stats</b></td>
-    <td align="center"><b>Course Cards</b></td>
-    <td align="center"><b>Testimonials</b></td>
+    <td align="center"><b>Firebase Auth</b></td>
+    <td align="center"><b>Role-based Dashboards</b></td>
+    <td align="center"><b>Assignments</b></td>
+    <td align="center"><b>Student Dashboard</b></td>
+  </tr>
+  <tr>
+    <td align="center">👨‍🏫</td>
+    <td align="center">📚</td>
+    <td align="center">📅</td>
+    <td align="center">🔔</td>
+  </tr>
+  <tr>
+    <td align="center"><b>Faculty Dashboard</b></td>
+    <td align="center"><b>Courses Page</b></td>
+    <td align="center"><b>Events Section</b></td>
+    <td align="center"><b>Notices</b></td>
   </tr>
 </table>
 
 ---
 
-## 📱 *App Preview*
+## 📱 App Preview
 
 <div align="center">
   
 ```dart
 // Welcome to ARYAN Institute App
-🌟 Home Page     ↔     🔐 Login Page     ↔     📋 Drawer Menu
+🏠 Home Page → 🔐 Login → 🎓 Student/Faculty Dashboard
 ```
 
-### *Screen Mockup*
+### Screen Flow
 ```
 ┌─────────────────────────────────┐
-│  🟢🟢🟢  ARYAN Institute  🟢🟢🟢  │
+│  🟢🟢🟢  ARYAN Institute     🟢🟢🟢  │
+│  Institute of Engineering &     │
+│  Technology                    │
 ├─────────────────────────────────┤
-│  ┌───────────────────────────┐  │
-│  │  🏫  Quality Education    │  │
-│  │  Shape your future...     │  │
-│  │  [Explore Courses] 🚀     │  │
-│  └───────────────────────────┘  │
-│                                  │
-│  📊 Our Achievements             │
-│  ┌──────┐  ┌──────┐  ┌──────┐  │
-│  │5000+ │  │200+  │  │50+   │  │
-│  │Students │Faculty │  │Awards│  │
-│  └──────┘  └──────┘  └──────┘  │
-│                                  │
-│  📚 Popular Courses              │
-│  ┌────┐ ┌────┐ ┌────┐ ┌────┐   │
-│  │ CS │ │ EE │ │ ME │ │ CE │   │
-│  └────┘ └────┘ └────┘ └────┘   │
+│  🎯 Shape Your Future          │
+│  [Explore Courses] [Login Now] │
+│                                 │
+│  📊 Stats: 5000+ Students     │
+│           200+ Faculty         │
+│           50+ Companies        │
+│                                 │
+│  📚 Popular Courses            │
+│  ┌────┐ ┌────┐ ┌────┐ ┌────┐  │
+│  │ CSE│ │ AI │ │ ECE│ │ ME │  │
+│  └────┘ └────┘ └────┘ └────┘  │
+│                                 │
+│  📅 Upcoming Events            │
+│  💬 Student Testimonials       │
+└─────────────────────────────────┘
+         ↓
+┌─────────────────────────────────┐
+│  🔐 Role Selection Login       │
+│  👨‍🎓 Student | 👨‍🏫 Faculty    │
+│  👷 Staff | 🏛️ Authority       │
+└─────────────────────────────────┘
+         ↓
+┌─────────────────────────────────┐
+│  🎓 Student Dashboard          │
+│  Welcome, [Student Name]!      │
+│  Branch: CSE | Year: 2nd       │
+│                                 │
+│  📝 Active Assignments         │
+│  📢 Notices & Announcements    │
+│  ⚡ Quick Actions              │
 └─────────────────────────────────┘
 ```
 
@@ -85,9 +110,9 @@
 
 ---
 
-## 🚀 *Getting Started*
+## 🚀 Getting Started
 
-### 📋 *Prerequisites*
+### 📋 Prerequisites
 
 ```bash
 # Check your Flutter installation
@@ -98,7 +123,7 @@ flutter --version
 flutter devices
 ```
 
-### ⚡ *Quick Setup*
+### ⚡ Quick Setup
 
 <div align="left">
 
@@ -122,29 +147,42 @@ flutter run
 
 ---
 
-## 🏗️ *Project Structure*
+## 🏗️ Project Structure
 
 ```mermaid
 graph TD
     A[lib/] --> B[main.dart]
     A --> C[home_page.dart]
     A --> D[login_page.dart]
-    B --> E[void main]
-    C --> F[HomePage StatefulWidget]
-    D --> G[LoginPage StatefulWidget]
-    F --> H[Animations]
-    F --> I[Drawer]
-    F --> J[SliverAppBar]
-    F --> K[Custom Cards]
-    G --> L[Form Validation]
-    G --> M[Social Login]
+    A --> E[signup_page.dart]
+    A --> F[role_selection_page.dart]
+    A --> G[student_dashboard.dart]
+    A --> H[faculty_dashboard.dart]
+    A --> I[staff_dashboard.dart]
+    A --> J[authority_dashboard.dart]
+    A --> K[student_assignments_page.dart]
+    A --> L[create_assignment_page.dart]
+    A --> M[courses_page.dart]
+    A --> N[semester_page.dart]
+    A --> O[pdf_viewer_page.dart]
+    A --> P[assignment_model.dart]
+    
+    B --> Q[Firebase Auth]
+    B --> R[Cloud Firestore]
+    
+    G --> S[Load Student Data]
+    G --> T[Display Assignments]
+    G --> U[Show Notices]
+    
+    H --> V[Create Assignments]
+    H --> W[Manage Students]
 ```
 
 ---
 
-## 🎨 *Theme & Design*
+## 🎨 Theme & Design
 
-### 🟢 *Color Palette*
+### 🟢 Color Palette
 
 <div align="center">
 
@@ -154,11 +192,13 @@ graph TD
 | 🌲 Medium Green | `#2E7D32` | Headers, Buttons |
 | 🌳 Dark Green | `#1B5E20` | Footer, Gradients |
 | ⚪ White | `#FFFFFF` | Text on dark, Cards |
-| 🔘 Light Grey | `#F5F5F5` | Background accents |
+| 🔵 Blue | `#1976D2` | Faculty theme |
+| 🟠 Orange | `#F57C00` | Staff theme |
+| 🟣 Purple | `#7B1FA2` | Authority theme |
 
 </div>
 
-### ✨ *Animations*
+### ✨ Animations
 
 <table>
   <tr>
@@ -168,27 +208,42 @@ graph TD
   </tr>
   <tr>
     <td>🎭 Fade In</td>
-    <td>1000ms</td>
+    <td>1200ms</td>
     <td>easeIn</td>
   </tr>
   <tr>
     <td>📤 Slide Up</td>
-    <td>800ms</td>
+    <td>1000ms</td>
     <td>easeOut</td>
+  </tr>
+  <tr>
+    <td>📊 Scale</td>
+    <td>800ms</td>
+    <td>elasticOut</td>
+  </tr>
+  <tr>
+    <td>💫 Pulse</td>
+    <td>2000ms</td>
+    <td>easeInOut</td>
   </tr>
 </table>
 
 ---
 
-## 📦 *Dependencies*
+## 📦 Dependencies
 
 ```yaml
 dependencies:
   flutter:
     sdk: flutter
   
-  # Material Design Icons (built-in)
-  # Cupertino Icons (built-in)
+  # Firebase
+  firebase_core: ^2.24.0
+  firebase_auth: ^4.16.0
+  cloud_firestore: ^4.14.0
+  
+  # UI
+  intl: ^0.19.0
   
 dev_dependencies:
   flutter_test:
@@ -198,14 +253,15 @@ dev_dependencies:
 
 ---
 
-## 🎯 *Core Features Deep Dive*
+## 🎯 Core Features Deep Dive
 
-### 🏠 *Home Page*
+### 🏠 Home Page
 
 <details>
 <summary>📸 Click to expand features</summary>
 
 - **🎨 Custom SliverAppBar** with expandable header
+- **🏛️ College Branding** - ARYAN Institute of Engineering & Technology
 - **📊 Statistics Cards** showing institute achievements
 - **📚 Horizontal Course Cards** for popular programs
 - **💬 Student Testimonials** with ratings
@@ -213,18 +269,23 @@ dev_dependencies:
 - **👣 Custom Drawer** with navigation options
 - **🎭 Smooth Animations** throughout
 - **🔍 Search & Notification** icons
+- **📞 About Us & Contact Us** dialogs
+- **ℹ️ College Info** - Established 2009, Greater Noida, AKTU Affiliated
 
 </details>
 
-### 🔐 *Login Page*
+### 🔐 Login & Authentication
 
 <details>
 <summary>🔑 Click to expand features</summary>
 
+- **✅ Firebase Authentication** - Secure email/password login
+- **👥 Role-based Login** - Student, Faculty, Staff, Authority
+- **📝 Sign Up** with role selection
 - **✅ Form Validation** for email and password
 - **👁️ Password visibility toggle**
 - **🎨 Gradient icon container**
-- **🔄 Social login options** (Google, Facebook, Apple)
+- **🔄 Social login options** (UI ready)
 - **📱 Responsive design**
 - **✨ Entrance animations**
 - **🔔 Custom snackbars**
@@ -232,33 +293,53 @@ dev_dependencies:
 
 </details>
 
+### 🎓 Student Dashboard
+
+<details>
+<summary>🎓 Click to expand features</summary>
+
+- **👋 Personalized Welcome** - "Welcome, [Student Name]!"
+- **📋 Student Info Display**:
+  - Registration Number
+  - Branch/Department
+  - Year
+  - Semester
+  - Section
+- **📝 Active Assignments** - Real-time from Firestore
+- **📢 Notices & Announcements** section
+- **⚡ Quick Actions** - Courses, Assignments, Grades, Schedule
+- **🔄 Pull-to-refresh** functionality
+- **🎨 Custom Avatar** with random colors
+
+</details>
+
+### 👨‍🏫 Faculty Dashboard
+
+<details>
+<summary>👨‍🏫 Click to expand features</details>
+
+- **📊 Faculty Profile** - Name, Department, Designation
+- **➕ Create Assignments** - Post new assignments
+- **📚 Quick Actions** - Courses, Students, Assignments, Grades
+- **🎨 Blue theme** for differentiation
+
+</details>
+
+### 📚 Additional Pages
+
+<details>
+<summary>📄 Click to expand features</summary>
+
+- **courses_page.dart** - Course information
+- **semester_page.dart** - Semester selection
+- **pdf_viewer_page.dart** - PDF viewing capability
+- **student_assignments_page.dart** - Full assignments list
+
+</details>
+
 ---
 
-## 🎬 *Animation Showcase*
-
-```dart
-// Fade Animation
-_fadeAnimation = Tween<double>(
-  begin: 0.0,
-  end: 1.0,
-).animate(CurvedAnimation(
-  parent: _fadeController, 
-  curve: Curves.easeIn
-));
-
-// Slide Animation
-_slideAnimation = Tween<Offset>(
-  begin: const Offset(0, 0.5),
-  end: Offset.zero,
-).animate(CurvedAnimation(
-  parent: _slideController, 
-  curve: Curves.easeOut
-));
-```
-
----
-
-## 📱 *Responsive Design*
+## 📱 Responsive Design
 
 <div align="center">
 
@@ -273,7 +354,22 @@ _slideAnimation = Tween<Offset>(
 
 ---
 
-## 🤝 *Contributing*
+## 🔌 Firebase Configuration
+
+The app uses Firebase with the following collections:
+
+```
+📂 cloud_firestore/
+ ├── 👨‍🎓 students/          # Student profiles
+ ├── 👨‍🏫 faculty/           # Faculty profiles  
+ ├── 📝 assignments/         # Posted assignments
+ ├── 👷 staff/              # Staff profiles
+ └── 🏛️ authority/           # Authority profiles
+```
+
+---
+
+## 🤝 Contributing
 
 <div align="center">
 
@@ -289,7 +385,7 @@ _slideAnimation = Tween<Offset>(
 
 ---
 
-## 📄 *License*
+## 📄 License
 
 <div align="center">
 
@@ -306,7 +402,7 @@ of this software and associated documentation files...
 
 ---
 
-## 👥 *Team*
+## 👥 Team
 
 <div align="center">
 
@@ -320,12 +416,13 @@ of this software and associated documentation files...
 
 ---
 
-## 🙏 *Acknowledgments*
+## 🙏 Acknowledgments
 
 <div align="center">
 
 - 🎓 **ARYAN Institute** for inspiration
 - 💙 **Flutter Team** for amazing framework
+- 🔥 **Firebase** for backend services
 - 🌟 **All Contributors** who make this better
 
 ---
@@ -334,4 +431,3 @@ of this software and associated documentation files...
 
 **[⬆ back to top](#-aryan-institute-app---readme)**
 
-</div>
