@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'dart:math';
+import 'student_assignments_page.dart';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({Key? key}) : super(key: key);
@@ -19,7 +21,12 @@ class _StudentDashboardState extends State<StudentDashboard>
   String userBranch = '';
   String userYear = '';
   String userSemester = '';
+  String userSection = '';
   bool isLoading = true;
+
+  // Assignments data
+  List<Map<String, dynamic>> _assignments = [];
+  bool _isLoadingAssignments = true;
 
   // Random avatar properties
   late Color avatarColor;
@@ -35,6 +42,9 @@ class _StudentDashboardState extends State<StudentDashboard>
   @override
   void initState() {
     super.initState();
+
+    // Initialize avatar with default values
+    _generateRandomAvatar('S');
     _loadUserData();
 
     // Initialize animations
@@ -86,24 +96,65 @@ class _StudentDashboardState extends State<StudentDashboard>
             userBranch = data['branch'] ?? '';
             userYear = data['year'] ?? '';
             userSemester = data['semester'] ?? '';
+            userSection = data['section'] ?? '';
             isLoading = false;
           });
 
           // Generate random avatar
           _generateRandomAvatar(userName);
+
+          // Load assignments after getting user data
+          _loadAssignments();
+        } else {
+          setState(() {
+            userName = 'Student';
+            isLoading = false;
+          });
         }
       }
     } catch (e) {
+      print('Error loading student data: $e');
       setState(() {
-        userName = 'Error loading data';
+        userName = 'Student';
         isLoading = false;
       });
       _generateRandomAvatar('S');
     }
   }
 
+  Future<void> _loadAssignments() async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('assignments')
+          .where('branch', isEqualTo: userBranch)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      List<Map<String, dynamic>> assignments = [];
+
+      for (var doc in snapshot.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        // Filter by section if needed
+        if (data['section'] == userSection ||
+            data['section'] == null ||
+            data['section'] == '') {
+          assignments.add(data);
+        }
+      }
+
+      setState(() {
+        _assignments = assignments;
+        _isLoadingAssignments = false;
+      });
+    } catch (e) {
+      print('Error loading assignments: $e');
+      setState(() {
+        _isLoadingAssignments = false;
+      });
+    }
+  }
+
   void _generateRandomAvatar(String name) {
-    // Generate random color
     final random = Random();
     final colors = [
       Colors.blue.shade700,
@@ -116,8 +167,6 @@ class _StudentDashboardState extends State<StudentDashboard>
       Colors.pink.shade700,
     ];
     avatarColor = colors[random.nextInt(colors.length)];
-
-    // Get first letter of name
     avatarInitial = name.isNotEmpty ? name[0].toUpperCase() : 'S';
   }
 
@@ -150,7 +199,6 @@ class _StudentDashboardState extends State<StudentDashboard>
               children: [
                 Row(
                   children: [
-                    // Random avatar
                     Container(
                       width: 60,
                       height: 60,
@@ -248,7 +296,6 @@ class _StudentDashboardState extends State<StudentDashboard>
                   ),
                   onTap: () {
                     Navigator.pop(context);
-                    _showSnackBar("Dashboard");
                   },
                 ),
 
@@ -296,7 +343,12 @@ class _StudentDashboardState extends State<StudentDashboard>
                   ),
                   onTap: () {
                     Navigator.pop(context);
-                    _showSnackBar("Assignments coming soon!");
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const StudentAssignmentsPage(),
+                      ),
+                    );
                   },
                 ),
 
@@ -426,233 +478,349 @@ class _StudentDashboardState extends State<StudentDashboard>
     return Scaffold(
       key: _scaffoldKey,
       drawer: _buildDrawer(),
-      body: CustomScrollView(
-        slivers: [
-          // App Bar
-          SliverAppBar(
-            expandedHeight: 200.0,
-            floating: false,
-            pinned: true,
-            leading: IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await _loadUserData();
+        },
+        child: CustomScrollView(
+          slivers: [
+            // App Bar with Enhanced Welcome
+            SliverAppBar(
+              expandedHeight: 280.0,
+              floating: false,
+              pinned: true,
+              leading: IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.menu, color: Colors.white, size: 24),
                 ),
-                child: const Icon(Icons.menu, color: Colors.white, size: 24),
+                onPressed: () {
+                  _scaffoldKey.currentState?.openDrawer();
+                },
               ),
-              onPressed: () {
-                _scaffoldKey.currentState?.openDrawer();
-              },
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // Background gradient
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Colors.green.shade400, Colors.green.shade900],
+              flexibleSpace: FlexibleSpaceBar(
+                background: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.green.shade400,
+                            Colors.green.shade900,
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  // Pattern overlay
-                  Opacity(
-                    opacity: 0.1,
-                    child: Container(
-                      color: Colors.white,
-                      child: CustomPaint(painter: GridPatternPainter()),
+                    Opacity(
+                      opacity: 0.1,
+                      child: Container(
+                        color: Colors.white,
+                        child: CustomPaint(painter: GridPatternPainter()),
+                      ),
                     ),
-                  ),
-                  // Content
-                  Positioned(
-                    bottom: 30,
-                    left: 24,
-                    right: 24,
-                    child: Row(
-                      children: [
-                        // Random avatar
-                        Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: avatarColor,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
-                                blurRadius: 12,
-                                offset: const Offset(0, 6),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              avatarInitial,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
+                    Positioned(
+                      bottom: 20,
+                      left: 24,
+                      right: 24,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
                             children: [
-                              Text(
-                                'Welcome back,',
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
-                                  fontSize: 16,
+                              Container(
+                                width: 70,
+                                height: 70,
+                                decoration: BoxDecoration(
+                                  color: avatarColor,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 3,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.3),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 6),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              Text(
-                                userName,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              if (userBranch.isNotEmpty)
-                                Text(
-                                  '$userBranch - $userYear',
-                                  style: TextStyle(
-                                    color: Colors.white.withOpacity(0.7),
-                                    fontSize: 14,
+                                child: Center(
+                                  child: Text(
+                                    avatarInitial,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Welcome,',
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.8),
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    Text(
+                                      userName,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 16),
+                          // Student Info Chips
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              if (userBranch.isNotEmpty)
+                                _buildInfoChip(Icons.school, userBranch),
+                              if (userYear.isNotEmpty)
+                                _buildInfoChip(Icons.calendar_today, userYear),
+                              if (userSemester.isNotEmpty)
+                                _buildInfoChip(Icons.class_, userSemester),
+                              if (userSection.isNotEmpty)
+                                _buildInfoChip(Icons.group, userSection),
+                            ],
+                          ),
+                          if (userRegdNo.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.badge,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Reg. No: $userRegdNo',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // Main content
-          SliverToBoxAdapter(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: SlideTransition(
-                position: _slideAnimation,
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Quick Actions',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+            // Main content
+            SliverToBoxAdapter(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Quick Actions
+                        const Text(
+                          'Quick Actions',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
+                        const SizedBox(height: 16),
 
-                      // Quick action cards
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildQuickActionCard(
-                              icon: Icons.book,
-                              title: 'Courses',
-                              color: Colors.blue.shade700,
-                              onTap: () =>
-                                  _showSnackBar('Courses coming soon!'),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildQuickActionCard(
-                              icon: Icons.assignment,
-                              title: 'Assignments',
-                              color: Colors.orange.shade700,
-                              onTap: () =>
-                                  _showSnackBar('Assignments coming soon!'),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildQuickActionCard(
-                              icon: Icons.grade,
-                              title: 'Grades',
-                              color: Colors.green.shade700,
-                              onTap: () => _showSnackBar('Grades coming soon!'),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildQuickActionCard(
-                              icon: Icons.calendar_today,
-                              title: 'Schedule',
-                              color: Colors.purple.shade700,
-                              onTap: () =>
-                                  _showSnackBar('Schedule coming soon!'),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 40),
-                      const Text(
-                        'Recent Activity',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Recent activity placeholder
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.grey.shade200),
-                        ),
-                        child: Row(
+                        Row(
                           children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: Colors.grey.shade600,
-                              size: 24,
-                            ),
-                            const SizedBox(width: 16),
                             Expanded(
-                              child: Text(
-                                'No recent activity yet. Start exploring your courses!',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 14,
-                                ),
+                              child: _buildQuickActionCard(
+                                icon: Icons.book,
+                                title: 'Courses',
+                                color: Colors.blue.shade700,
+                                onTap: () =>
+                                    _showSnackBar('Courses coming soon!'),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildQuickActionCard(
+                                icon: Icons.assignment,
+                                title: 'Assignments',
+                                color: Colors.orange.shade700,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const StudentAssignmentsPage(),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildQuickActionCard(
+                                icon: Icons.grade,
+                                title: 'Grades',
+                                color: Colors.green.shade700,
+                                onTap: () =>
+                                    _showSnackBar('Grades coming soon!'),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildQuickActionCard(
+                                icon: Icons.schedule,
+                                title: 'Schedule',
+                                color: Colors.purple.shade700,
+                                onTap: () =>
+                                    _showSnackBar('Schedule coming soon!'),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 28),
+
+                        // Active Assignments Section
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Active Assignments',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            if (_assignments.isNotEmpty)
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const StudentAssignmentsPage(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'View All',
+                                  style: TextStyle(
+                                    color: Colors.green.shade700,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        if (_isLoadingAssignments)
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(20),
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        else if (_assignments.isEmpty)
+                          _buildEmptyAssignments()
+                        else
+                          ..._assignments
+                              .take(3)
+                              .map(
+                                (assignment) =>
+                                    _buildAssignmentCard(assignment),
+                              ),
+
+                        const SizedBox(height: 28),
+
+                        // Faculty Notices / Announcements Section
+                        const Text(
+                          'Notices & Announcements',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildNoticesPlaceholder(),
+
+                        const SizedBox(height: 20),
+                      ],
+                    ),
                   ),
                 ),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoChip(IconData icon, String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.white, size: 14),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -667,7 +835,7 @@ class _StudentDashboardState extends State<StudentDashboard>
     required VoidCallback onTap,
   }) {
     return Container(
-      height: 100,
+      height: 90,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -685,16 +853,16 @@ class _StudentDashboardState extends State<StudentDashboard>
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, size: 32, color: color),
-                const SizedBox(height: 8),
+                Icon(icon, size: 28, color: color),
+                const SizedBox(height: 6),
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey.shade800,
                   ),
@@ -703,6 +871,257 @@ class _StudentDashboardState extends State<StudentDashboard>
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyAssignments() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.assignment_outlined,
+            size: 48,
+            color: Colors.grey.shade400,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'No Assignments Yet',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Your faculty haven\'t posted any assignments yet.',
+            style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAssignmentCard(Map<String, dynamic> assignment) {
+    DateTime dueDate = DateTime.parse(assignment['dueDate']);
+    bool isOverdue = dueDate.isBefore(DateTime.now());
+    bool isDueSoon = dueDate.difference(DateTime.now()).inDays <= 2;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const StudentAssignmentsPage(),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isOverdue
+                            ? Colors.red.shade100
+                            : isDueSoon
+                            ? Colors.orange.shade100
+                            : Colors.green.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.assignment,
+                        color: isOverdue
+                            ? Colors.red.shade700
+                            : isDueSoon
+                            ? Colors.orange.shade700
+                            : Colors.green.shade700,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            assignment['subject'] ?? 'Subject',
+                            style: TextStyle(
+                              color: isOverdue
+                                  ? Colors.red.shade700
+                                  : isDueSoon
+                                  ? Colors.orange.shade700
+                                  : Colors.green.shade700,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            assignment['title'] ?? 'Assignment',
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isOverdue
+                            ? Colors.red
+                            : isDueSoon
+                            ? Colors.orange
+                            : Colors.green,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        isOverdue
+                            ? 'Overdue'
+                            : isDueSoon
+                            ? 'Due Soon'
+                            : 'Active',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.person_outline,
+                      size: 14,
+                      color: Colors.grey.shade500,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      assignment['facultyName'] ?? 'Faculty',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const Spacer(),
+                    Icon(
+                      Icons.event,
+                      size: 14,
+                      color: isOverdue ? Colors.red : Colors.grey.shade500,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Due: ${DateFormat('MMM dd').format(dueDate)}',
+                      style: TextStyle(
+                        color: isOverdue ? Colors.red : Colors.grey.shade600,
+                        fontSize: 12,
+                        fontWeight: isOverdue
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.grade_outlined,
+                      size: 14,
+                      color: Colors.grey.shade500,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${assignment['maxMarks']} marks',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoticesPlaceholder() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.blue.shade100),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade100,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(Icons.campaign, color: Colors.blue.shade700, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'No Notices Yet',
+                  style: TextStyle(
+                    color: Colors.blue.shade700,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Faculty notices will appear here when posted.',
+                  style: TextStyle(color: Colors.blue.shade600, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

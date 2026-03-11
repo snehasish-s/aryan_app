@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "634979024076",
+    "project_id": "aryan-app-84eac",
+    "storage_bucket": "aryan-app-84eac.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:634979024076:android:4c49e43e042b72823d1669",
+        "android_client_info": {
+          "package_name": "com.example.aryan_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiyfyJE5z9BMCuI5mM5siGg1RL4pysIiQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

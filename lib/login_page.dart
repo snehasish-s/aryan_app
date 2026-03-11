@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'signup_page.dart';
 import 'student_dashboard.dart';
+import 'faculty_dashboard.dart';
+import 'staff_dashboard.dart';
+import 'authority_dashboard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
@@ -84,6 +87,23 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               MaterialPageRoute(builder: (context) => const StudentDashboard()),
               (route) => false,
             );
+          } else if (widget.userRole == 'faculty') {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const FacultyDashboard()),
+              (route) => false,
+            );
+          } else if (widget.userRole == 'staff') {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const StaffDashboard()),
+              (route) => false,
+            );
+          } else if (widget.userRole == 'authority') {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (context) => const AuthorityDashboard(),
+              ),
+              (route) => false,
+            );
           } else {
             // For other roles, you can add their dashboards here
             Navigator.of(
@@ -119,18 +139,18 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         leading: Container(
           margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.green.shade50,
+            color: _getColorForRole().withOpacity(0.2),
             shape: BoxShape.circle,
           ),
           child: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.green.shade700),
+            icon: Icon(Icons.arrow_back, color: _getColorForRole()),
             onPressed: () => Navigator.pop(context),
           ),
         ),
         title: Text(
-          'Welcome Back',
+          '${_getRoleName()} Login',
           style: TextStyle(
-            color: Colors.green.shade800,
+            color: _getColorForRole(),
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -160,7 +180,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                           height: 140,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.green.shade50,
+                            color: _getColorForRole().withOpacity(0.2),
                           ),
                         ),
                         Container(
@@ -172,20 +192,20 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                Colors.green.shade400,
-                                Colors.green.shade700,
+                                _getColorForRole().withOpacity(0.6),
+                                _getColorForRole(),
                               ],
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.green.withOpacity(0.3),
+                                color: _getColorForRole().withOpacity(0.3),
                                 blurRadius: 15,
                                 offset: const Offset(0, 8),
                               ),
                             ],
                           ),
-                          child: const Icon(
-                            Icons.school,
+                          child: Icon(
+                            _getIconForRole(),
                             size: 60,
                             color: Colors.white,
                           ),
@@ -195,9 +215,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                     const SizedBox(height: 30),
 
                     // Welcome text
-                    const Text(
-                      'Login to Your Account',
-                      style: TextStyle(
+                    Text(
+                      '${_getRoleName()} Login',
+                      style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
@@ -480,14 +500,15 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const SignupPage(),
+                                builder: (context) =>
+                                    SignupPage(userRole: widget.userRole),
                               ),
                             );
                           },
                           child: Text(
                             'Sign Up',
                             style: TextStyle(
-                              color: Colors.green.shade700,
+                              color: _getColorForRole(),
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
                             ),
@@ -532,5 +553,50 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         child: Icon(icon, color: color, size: 30),
       ),
     );
+  }
+
+  String _getRoleName() {
+    switch (widget.userRole) {
+      case 'student':
+        return 'Student';
+      case 'faculty':
+        return 'Faculty';
+      case 'staff':
+        return 'Staff';
+      case 'authority':
+        return 'Authority';
+      default:
+        return 'User';
+    }
+  }
+
+  Color _getColorForRole() {
+    switch (widget.userRole) {
+      case 'student':
+        return Colors.green.shade700;
+      case 'faculty':
+        return Colors.blue.shade700;
+      case 'staff':
+        return Colors.orange.shade700;
+      case 'authority':
+        return Colors.purple.shade700;
+      default:
+        return Colors.green.shade700;
+    }
+  }
+
+  IconData _getIconForRole() {
+    switch (widget.userRole) {
+      case 'student':
+        return Icons.school;
+      case 'faculty':
+        return Icons.person;
+      case 'staff':
+        return Icons.business_center;
+      case 'authority':
+        return Icons.admin_panel_settings;
+      default:
+        return Icons.school;
+    }
   }
 }

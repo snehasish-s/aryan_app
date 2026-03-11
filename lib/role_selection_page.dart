@@ -245,9 +245,11 @@ class _RoleSelectionPageState extends State<RoleSelectionPage>
                     icon: Icons.person,
                     color: Colors.blue.shade700,
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Faculty login coming soon!'),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const LoginPage(userRole: 'faculty'),
                         ),
                       );
                     },
@@ -259,9 +261,11 @@ class _RoleSelectionPageState extends State<RoleSelectionPage>
                     icon: Icons.business_center,
                     color: Colors.orange.shade700,
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Staff login coming soon!'),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const LoginPage(userRole: 'staff'),
                         ),
                       );
                     },
@@ -273,9 +277,11 @@ class _RoleSelectionPageState extends State<RoleSelectionPage>
                     icon: Icons.admin_panel_settings,
                     color: Colors.purple.shade700,
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Authority login coming soon!'),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const LoginPage(userRole: 'authority'),
                         ),
                       );
                     },
