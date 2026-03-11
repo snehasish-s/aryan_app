@@ -4,6 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'dart:math';
 import 'student_assignments_page.dart';
+import 'attendance_page.dart';
+import 'notices_page.dart';
+import 'results_page.dart';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({Key? key}) : super(key: key);
@@ -705,8 +708,53 @@ class _StudentDashboardState extends State<StudentDashboard>
                                 icon: Icons.grade,
                                 title: 'Grades',
                                 color: Colors.green.shade700,
-                                onTap: () =>
-                                    _showSnackBar('Grades coming soon!'),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const ResultsPage(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildQuickActionCard(
+                                icon: Icons.schedule,
+                                title: 'Attendance',
+                                color: Colors.purple.shade700,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const AttendancePage(
+                                            userRole: 'student',
+                                          ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildQuickActionCard(
+                                icon: Icons.campaign,
+                                title: 'Notices',
+                                color: Colors.teal.shade700,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const NoticesPage(),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -714,7 +762,7 @@ class _StudentDashboardState extends State<StudentDashboard>
                               child: _buildQuickActionCard(
                                 icon: Icons.schedule,
                                 title: 'Schedule',
-                                color: Colors.purple.shade700,
+                                color: Colors.indigo.shade700,
                                 onTap: () =>
                                     _showSnackBar('Schedule coming soon!'),
                               ),
